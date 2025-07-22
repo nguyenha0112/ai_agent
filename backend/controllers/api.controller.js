@@ -1,7 +1,7 @@
 // Import các model tương ứng
 import { Inventory } from '../models/Inventory.model.js';
 import { getActivePromotions, findPromotion } from '../models/Promotion.model.js';
-import { createNewOrder } from '../models/Order.model.js'; // ⚠️ Hàm này phải được export đúng trong model
+import { createNewOrder } from '../models/Order.model.js'; 
 
 
 /**
@@ -47,9 +47,6 @@ export const checkInventory = async (req, res) => {
     res.status(500).json({ error: 'Lỗi kiểm tra tồn kho', message: error.message });
   }
 };
-
-
-
 
 /**
  * Tạo đơn hàng mới
@@ -105,3 +102,36 @@ export const createShipping = (req, res) => {
     res.status(500).json({ error: 'Lỗi tạo thông tin vận chuyển', message: error.message });
   }
 };
+
+
+// Lấy danh sách tồn kho với các điều kiện lọc
+// controllers/api.controller.js
+
+export const filterInventories = async (req, res) => {
+  try {
+    const { productId, name, minQty, maxQty } = req.body || {};
+
+    const filter = {};
+
+    if (productId) {
+      filter.productId = productId;
+    }
+
+    if (name) {
+      filter.name = { $regex: name, $options: 'i' };
+    }
+
+    if (minQty || maxQty) {
+      filter.quantity = {};
+      if (minQty) filter.quantity.$gte = Number(minQty);
+      if (maxQty) filter.quantity.$lte = Number(maxQty);
+    }
+
+    const results = await Inventory.find(filter);
+    res.json(results);
+  } catch (error) {
+    console.error('Lỗi filter tồn kho:', error);
+    res.status(500).json({ error: 'Lỗi server khi filter tồn kho' });
+  }
+};
+

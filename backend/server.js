@@ -6,11 +6,15 @@ import zaloRoutes from './routers/zalo.route.js';
 import { connectDB } from './config/db.js';
 import { ENV_VARS } from './config/envVars.js';
 
+import cors from 'cors';
+
 
 const app = express();
 const PORT = ENV_VARS.PORT;
 
 app.use(express.json()); 
+
+app.use(cors());
 
 
 app.use('/zalo', zaloRoutes);
